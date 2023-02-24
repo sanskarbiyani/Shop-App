@@ -79,15 +79,17 @@ class _EditProductScreenState extends State<EditProductScreen> {
     }
   }
 
-  void _saveForm() {
+  Future<void> _saveForm() async {
     setState(() {
       _isLoading = true;
     });
+
     // Run the validator functions for all the input fields
     final isValid = _form.currentState?.validate() ?? false;
     if (!isValid) {
       return;
     }
+
     // Call the onSaved callback function for all the input fields
     _form.currentState?.save();
     var id = _editedProduct.id ?? DateTime.now().toString();
@@ -112,31 +114,30 @@ class _EditProductScreenState extends State<EditProductScreen> {
       Navigator.of(context).pop();
     } else {
       // Add a new Product
-      Provider.of<Products>(context, listen: false)
-          .addProduct(prod)
-          .catchError(
-            (error) => showDialog(
-              context: context,
-              builder: (ctx) => AlertDialog(
-                title: const Text('An error occurred.'),
-                content: Text(error.toString()),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(ctx).pop();
-                    },
-                    child: const Text('Close'),
-                  )
-                ],
-              ),
-            ).then((value) => null),
-          )
-          .then((_) {
+      try {
+        await Provider.of<Products>(context, listen: false).addProduct(prod);
+      } catch (error) {
+        await showDialog(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            title: const Text('An error occurred.'),
+            content: const Text("Something went wrong.."),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                },
+                child: const Text('Close'),
+              )
+            ],
+          ),
+        );
+      } finally {
         setState(() {
           _isLoading = false;
         });
         Navigator.of(context).pop();
-      });
+      }
     }
   }
 

@@ -1,5 +1,8 @@
 // ignore_for_file: prefer_final_fields
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 import './product.dart';
 
@@ -66,9 +69,34 @@ class Products with ChangeNotifier {
     return _items.firstWhere((prod) => prod.id == id);
   }
 
-  void addProduct(Product prod) {
-    _items.add(prod);
-    notifyListeners();
+  Future<void> addProduct(Product prod) {
+    final url = Uri.parse(
+        'https://my-shop-app-ffcd8-default-rtdb.firebaseio.com/products');
+    return http
+        .post(url,
+            body: jsonEncode(
+              {
+                'title': prod.title,
+                'description': prod.description,
+                'imgeUrl': prod.imageUrl,
+                'price': prod.price,
+                'isFavourite': prod.isFavorite,
+              },
+            ))
+        .then((response) {
+      final newProd = Product(
+        id: jsonDecode(response.body)['name'],
+        title: prod.title,
+        description: prod.description,
+        imageUrl: prod.imageUrl,
+        price: prod.price,
+        isFavorite: prod.isFavorite,
+      );
+      _items.add(newProd);
+      notifyListeners();
+    }).catchError((error) {
+      throw error;
+    });
   }
 
   void updateProduct(String id, Product newProduct) {

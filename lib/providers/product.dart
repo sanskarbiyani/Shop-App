@@ -1,4 +1,8 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 
 class Product with ChangeNotifier {
   final String id;
@@ -17,8 +21,21 @@ class Product with ChangeNotifier {
     this.isFavorite = false,
   });
 
-  void toggleFavoriteStatus() {
+  Future<void> toggleFavoriteStatus() async {
     isFavorite = !isFavorite;
     notifyListeners();
+
+    final url = Uri.parse(
+        'https://my-shop-app-ffcd8-default-rtdb.firebaseio.com/products/$id.json');
+
+    try {
+      final res =
+          await http.patch(url, body: jsonEncode({'isFavourite': isFavorite}));
+      print(jsonDecode(res.body));
+    } catch (error) {
+      isFavorite = !isFavorite;
+      notifyListeners();
+      throw const HttpException("Cannot add to favourites");
+    }
   }
 }

@@ -20,6 +20,7 @@ class ProductItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final product = Provider.of<Product>(context);
+    final scaffold = ScaffoldMessenger.of(context);
     // final cart = Provider.of<Cart>(context, listen: false);
     // Creates a listener to the provider so that it can listen to changes
     // and rebuild the widget when the value changes.
@@ -43,7 +44,27 @@ class ProductItem extends StatelessWidget {
                 icon: Icon(
                     prod.isFavorite ? Icons.favorite : Icons.favorite_border),
                 color: Theme.of(context).colorScheme.secondary,
-                onPressed: product.toggleFavoriteStatus,
+                onPressed: () async {
+                  try {
+                    await product.toggleFavoriteStatus();
+                    scaffold.showSnackBar(
+                      SnackBar(
+                        content: Text(
+                            "Favourite Status updated to ${prod.isFavorite}"),
+                        backgroundColor: Colors.green,
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+                  } catch (_) {
+                    scaffold.showSnackBar(
+                      const SnackBar(
+                        content: Text("Cannot update favourite status."),
+                        backgroundColor: Colors.red,
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  }
+                },
               ),
             ),
             title: Text(product.title, textAlign: TextAlign.center),

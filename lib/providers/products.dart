@@ -13,12 +13,19 @@ class Products with ChangeNotifier {
   // var _showFavouritesOnly = false;
   Future<void> fetchAllProducts() async {
     final url = Uri.parse(
-        'https://my-shop-app-ffcd8-default-rtdb.firebaseio.com/products.json');
+        'https://my-shop-demo-28821-default-rtdb.firebaseio.com/products.json');
 
     try {
       final response = await http.get(url);
       // print(jsonDecode(response.body));
-      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      final res = jsonDecode(response.body);
+      if (res == null) {
+        throw "No Products found";
+      }
+      final body = (res ?? {}) as Map<String, dynamic>;
+      if (response.statusCode == 401) {
+        throw Exception(response.statusCode);
+      }
       final List<Product> loadedProds = [];
       body.forEach((key, value) {
         loadedProds.add(
@@ -66,7 +73,7 @@ class Products with ChangeNotifier {
 
   Future<void> addProduct(Product prod) async {
     final url = Uri.parse(
-        'https://my-shop-app-ffcd8-default-rtdb.firebaseio.com/products.json');
+        'https://my-shop-demo-28821-default-rtdb.firebaseio.com/products.json');
 
     try {
       final response = await http.post(
@@ -102,7 +109,7 @@ class Products with ChangeNotifier {
     var ind = _items.indexWhere((element) => element.id == id);
     if (ind >= 0) {
       final url = Uri.parse(
-          'https://my-shop-app-ffcd8-default-rtdb.firebaseio.com/products/$id.json');
+          'https://my-shop-demo-28821-default-rtdb.firebaseio.com/products/$id.json');
       print("url: ${url.toString()}");
       final body = {
         'title': newProduct.title,
@@ -122,7 +129,7 @@ class Products with ChangeNotifier {
 
   Future<void> deleteProduct(String id) async {
     final url = Uri.parse(
-        'https://my-shop-app-ffcd8-default-rtdb.firebaseio.com/products/$id.json');
+        'https://my-shop-demo-28821-default-rtdb.firebaseio.com/products/$id.json');
     final existingProdInd = _items.indexWhere((element) => element.id == id);
     Product? exisitingProd = _items[existingProdInd];
 

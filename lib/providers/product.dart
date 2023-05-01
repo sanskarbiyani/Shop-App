@@ -26,7 +26,7 @@ class Product with ChangeNotifier {
     notifyListeners();
 
     final url = Uri.parse(
-        'https://my-shop-app-ffcd8-default-rtdb.firebaseio.com/products/$id.json');
+        'https://my-shop-demo-28821-default-rtdb.firebaseio.com/products/$id.json');
 
     try {
       final res =

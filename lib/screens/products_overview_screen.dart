@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import './cart_screen.dart';
@@ -24,22 +25,58 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   var _showOnlyFavourites = false;
   // var _init = true;
   var _isLoading = false;
+  var _noProductsAvailable = false;
 
   @override
   void initState() {
+    super.initState();
     _isLoading = true;
-    Provider.of<Products>(context, listen: false).fetchAllProducts().then(
-      (value) {
-        setState(() {
-          _isLoading = false;
-        });
-      },
-    );
+    Future.delayed(Duration.zero, () async {
+      await _loadProducts();
+    });
     // WORKAROUND-1: For fetching initial data when widget not built completly
     // Future.delayed(Duration.zero).then((_) {
     //   Provider.of<Products>(context).fetchAllProducts();
     // });
-    super.initState();
+  }
+
+  Future<void> _loadProducts() async {
+    try {
+      final _ = await Provider.of<Products>(context, listen: false)
+          .fetchAllProducts();
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (err) {
+      if (err.runtimeType == int && err as int >= 400) {
+        await _showAlertDialog();
+      } else if (err == "No Products found") {
+        setState(() {
+          _noProductsAvailable = true;
+        });
+      }
+
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _showAlertDialog() async {
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Some error occured."),
+        content: const Text("Please try again later."),
+        actions: [
+          TextButton(
+            onPressed: () =>
+                SystemChannels.platform.invokeMethod('SystemNavigator.pop'),
+            child: const Text("Close"),
+          )
+        ],
+      ),
+    );
   }
 
   // WORKAROUND-2: For fetching initial data when widget not built completly
@@ -112,12 +149,21 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
             ),
           ),
           Expanded(
-            child: _isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(),
-                  )
-                : ProductsGrid(_showOnlyFavourites),
-          ),
+              child: _isLoading
+                  ? const Center(
+                      child: CircularProgressIndicator(),
+                    )
+                  : _noProductsAvailable
+                      ? Column(
+                          children: const [
+                            SizedBox(height: 50),
+                            Text(
+                              "No Products available for display,",
+                              style: TextStyle(fontSize: 15),
+                            )
+                          ],
+                        )
+                      : ProductsGrid(_showOnlyFavourites)),
         ],
       ),
     );

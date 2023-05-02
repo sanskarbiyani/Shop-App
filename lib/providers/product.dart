@@ -29,9 +29,9 @@ class Product with ChangeNotifier {
         'https://my-shop-demo-28821-default-rtdb.firebaseio.com/products/$id.json');
 
     try {
-      final res =
+      final _ =
           await http.patch(url, body: jsonEncode({'isFavourite': isFavorite}));
-      print(jsonDecode(res.body));
+      // print(jsonDecode(res.body));
     } catch (error) {
       isFavorite = !isFavorite;
       notifyListeners();

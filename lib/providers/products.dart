@@ -110,7 +110,7 @@ class Products with ChangeNotifier {
     if (ind >= 0) {
       final url = Uri.parse(
           'https://my-shop-demo-28821-default-rtdb.firebaseio.com/products/$id.json');
-      print("url: ${url.toString()}");
+      // print("url: ${url.toString()}");
       final body = {
         'title': newProduct.title,
         'description': newProduct.description,

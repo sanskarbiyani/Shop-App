@@ -88,25 +88,27 @@ class ShoppingCartItem extends StatelessWidget {
                     Provider.of<Cart>(context, listen: false)
                         .addItem(productId, price, title);
                   },
-                  icon: Icon(
+                  icon: const Icon(
                     Icons.add,
-                    size: 30,
-                    color: Theme.of(context).colorScheme.primary,
+                    size: 25,
+                    color: Colors.blueGrey,
                   ),
                 ),
                 Text(
                   '$quantity',
-                  style: const TextStyle(fontSize: 30, color: Colors.black54),
+                  style: TextStyle(
+                      fontSize: 25,
+                      color: Theme.of(context).colorScheme.primary),
                 ),
                 IconButton(
                     onPressed: () {
                       Provider.of<Cart>(context, listen: false)
                           .removeSingleItem(productId);
                     },
-                    icon: Icon(
+                    icon: const Icon(
                       Icons.remove,
-                      size: 30,
-                      color: Theme.of(context).colorScheme.primary,
+                      size: 25,
+                      color: Colors.blueGrey,
                     ))
               ],
             ),

@@ -44,6 +44,35 @@ class Cart with ChangeNotifier {
     return total;
   }
 
+  Future<void> fetchFullCart() async {
+    final url = Uri.parse(
+        'https://my-shop-demo-28821-default-rtdb.firebaseio.com/cart.json');
+    try {
+      final res = await http.get(url);
+      final resBody = jsonDecode(res.body);
+
+      if (resBody == null) {
+        return;
+      }
+
+      final body = resBody as Map<String, dynamic>;
+      Map<String, CartItem> fetchedCart = {};
+      body.forEach((key, value) {
+        fetchedCart[key] = CartItem(
+            id: value["id"],
+            title: value["title"],
+            quantity: value["quantity"],
+            price: value["price"]);
+      });
+      // print(fetchedCart);
+      _items = fetchedCart;
+      // print(itemCount);
+      notifyListeners();
+    } catch (err) {
+      rethrow;
+    }
+  }
+
   Future<void> removeItem(String productId) async {
     final uri = Uri.parse(
         'https://my-shop-demo-28821-default-rtdb.firebaseio.com/cart/$productId.json');

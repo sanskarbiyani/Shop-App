@@ -41,6 +41,7 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
   }
 
   Future<void> _loadProducts() async {
+    // Getting all the products.
     try {
       final _ = await Provider.of<Products>(context, listen: false)
           .fetchAllProducts();
@@ -59,6 +60,16 @@ class _ProductsOverviewScreenState extends State<ProductsOverviewScreen> {
       setState(() {
         _isLoading = false;
       });
+    }
+
+    try {
+      if (context.mounted) {
+        final _ =
+            await Provider.of<Cart>(context, listen: false).fetchFullCart();
+      }
+    } catch (err) {
+      // ignore: avoid_print
+      print(err);
     }
   }
 

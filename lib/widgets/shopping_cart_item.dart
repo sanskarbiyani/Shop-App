@@ -80,7 +80,36 @@ class ShoppingCartItem extends StatelessWidget {
             ),
             title: Text(title),
             subtitle: Text('Total: \$${(price * quantity)}'),
-            trailing: Text('$quantity x'),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    Provider.of<Cart>(context, listen: false)
+                        .addItem(productId, price, title);
+                  },
+                  icon: Icon(
+                    Icons.add,
+                    size: 30,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+                Text(
+                  '$quantity',
+                  style: const TextStyle(fontSize: 30, color: Colors.black54),
+                ),
+                IconButton(
+                    onPressed: () {
+                      Provider.of<Cart>(context, listen: false)
+                          .removeSingleItem(productId);
+                    },
+                    icon: Icon(
+                      Icons.remove,
+                      size: 30,
+                      color: Theme.of(context).colorScheme.primary,
+                    ))
+              ],
+            ),
           ),
         ),
       ),

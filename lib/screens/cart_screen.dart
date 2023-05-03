@@ -50,9 +50,11 @@ class CartScreen extends StatelessWidget {
                         context,
                         listen: false,
                       ).addOrder(
+                        cart.items.keys.toList(),
                         cart.items.values.toList(),
                         cart.totalAmount,
                       );
+                      // print();
                       cart.clear();
                     },
                     child: const Text('ORDER NOW'),

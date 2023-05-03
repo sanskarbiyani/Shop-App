@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -137,9 +139,23 @@ class Cart with ChangeNotifier {
     notifyListeners();
   }
 
-  void clear() {
-    _items = {};
-    notifyListeners();
+  Future<void> clear() async {
+    final url = Uri.parse(
+        'https://my-shop-demo-28821-default-rtdb.firebaseio.com/cart.json');
+    try {
+      final res = await http.delete(url);
+
+      if (res.statusCode != 200) {
+        final errBody = jsonDecode(res.body);
+        print("Error when clearing the cart. Message: $errBody");
+        throw Exception("Somthing went wrong!");
+      } else {
+        _items = {};
+        notifyListeners();
+      }
+    } catch (err) {
+      rethrow;
+    }
   }
 
   Future<void> removeSingleItem(String productId) async {

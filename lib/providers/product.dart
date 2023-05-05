@@ -22,6 +22,10 @@ class Product with ChangeNotifier {
   });
 
   Future<void> toggleFavoriteStatus() async {
+    // Optimistically loading is used.
+    // First the local state is changed and then the request is sent.
+    // If the request is successfull then all is good,
+    // otherwise, we change the local state again.
     isFavorite = !isFavorite;
     notifyListeners();
 
@@ -29,8 +33,11 @@ class Product with ChangeNotifier {
         'https://my-shop-demo-28821-default-rtdb.firebaseio.com/products/$id.json');
 
     try {
-      final _ =
+      final res =
           await http.patch(url, body: jsonEncode({'isFavourite': isFavorite}));
+      if (res.statusCode >= 400) {
+        throw Exception("Request Failed!");
+      }
       // print(jsonDecode(res.body));
     } catch (error) {
       isFavorite = !isFavorite;

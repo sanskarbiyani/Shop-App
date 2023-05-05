@@ -111,10 +111,11 @@ class Cart with ChangeNotifier {
         rethrow;
       }
     } else {
+      var timeStamp = DateTime.now();
       _items.putIfAbsent(
         productId,
         () => CartItem(
-          id: DateTime.now().toString(),
+          id: timeStamp.toString(),
           title: title,
           quantity: 1,
           price: price,
@@ -122,7 +123,7 @@ class Cart with ChangeNotifier {
       );
       try {
         final body = {
-          "id": DateTime.now().toString(),
+          "id": timeStamp.toString(),
           "title": title,
           "quantity": 1,
           "price": price,

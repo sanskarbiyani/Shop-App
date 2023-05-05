@@ -14,51 +14,56 @@ class OrderScreen extends StatefulWidget {
 }
 
 class _OrderScreenState extends State<OrderScreen> {
-  var _isLoading = false;
+  Future? _ordersFuture;
 
-  @override
-  void initState() {
-    // This delaying trick works because this is queued to get executed at the very end of the initialization.
-    Future.delayed(Duration.zero).then((_) {
-      setState(() {
-        _isLoading = true;
-      });
-      Provider.of<Orders>(context, listen: false).fetchAllOrders();
-    }).then((_) {
-      setState(() {
-        _isLoading = false;
-      });
-    });
-    super.initState();
+  Future _obtainOrdersFuture() {
+    return Provider.of<Orders>(context, listen: false).fetchAllOrders();
   }
 
   @override
-  Widget build(BuildContext context) {
-    final orderData = Provider.of<Orders>(context);
+  void initState() {
+    _ordersFuture = _obtainOrdersFuture();
+    super.initState();
+  }
 
+  // We can reduce the above overhead if our widget does not build itself again.
+  // Because if the widget get built again, then the Future builder widget will run,
+  // resulting in the http and other code written in the method to run which we do not want.
+  // Therefore, we have to use the above overhead
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Your Orders.'),
       ),
       drawer: const AppDrawer(),
-      body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(),
-            )
-          : orderData.orders.isEmpty
-              ? const Center(
-                  child: Text(
-                    'No orders available.',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.blueGrey,
-                    ),
+      body: FutureBuilder(
+          future: _ordersFuture,
+          builder: (ctx, dataSnapShot) {
+            if (dataSnapShot.connectionState == ConnectionState.waiting) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else if (dataSnapShot.hasError) {
+              return const Center(
+                child: Text(
+                  'No orders available.',
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.blueGrey,
                   ),
-                )
-              : ListView.builder(
+                ),
+              );
+            } else {
+              return Consumer<Orders>(
+                builder: (ctx, orderData, child) => ListView.builder(
                   itemBuilder: (ctx, ind) => OrderItem(orderData.orders[ind]),
                   itemCount: orderData.orders.length,
                 ),
+              );
+            }
+          }),
     );
   }
 }

@@ -63,6 +63,7 @@ class Orders with ChangeNotifier {
       notifyListeners();
     } catch (err) {
       print(err);
+      rethrow;
     }
   }
 
